@@ -74,7 +74,7 @@ body{font-family:Archivo,system-ui,-apple-system,'Segoe UI',sans-serif;backgroun
 <div class="searchbox"><h2>Enter a card number</h2>
 <div class="searchrow"><input id="q" type="text" inputmode="numeric" placeholder="For example, 876" autocomplete="off"><button id="go">Search</button></div>
 <div class="hint">All rates are per card</div></div>
-<div id="results"><div class="empty"><h3>Check a rate instantly</h3>Enter a card number and press Search.</div></div>
+<div id="results"><div class="empty"><h3>Check a rate instantly</h3>Type a card number — the card appears below as you type.</div></div>
 <button id="logout">Log out</button>
 <div class="footer">Online Card Rate List<br>Rates per card</div>
 </div>
@@ -108,8 +108,15 @@ const innerBox=r.inner?'<div class="info"><div class="k">Inner</div><div class="
 const innerRate=r.extra_inner?'<div class="info"><div class="k">Inner Rate</div><div class="v">Rs '+r.extra_inner+'</div></div>':'';
 const note=r.note?'<div class="note">'+r.note+'</div>':'';
 return '<div class="card">'+photo+'<div class="cardbody"><div class="cardno">Card '+r.no+'</div><div class="badges">'+badges+'</div><div class="ratebox"><div class="amt">Rs '+perCard+'</div><div class="lbl">per card</div></div>'+((innerBox||innerRate)?'<div class="inforow">'+innerBox+innerRate+'</div>':'')+note+'</div></div>'}).join('')}
-function search(){const q=document.getElementById('q').value.replace(/\D/g,'');if(!q)return;render(RATES.filter(r=>r.no===q))}
+function search(){
+const q=document.getElementById('q').value.replace(/\D/g,'');
+const box=document.getElementById('results');
+if(!q){box.innerHTML='<div class="empty"><h3>Check a rate instantly</h3>Type a card number — the card appears below as you type.</div>';return}
+let list=RATES.filter(r=>r.no===q||r.no.startsWith(q)||r.no.includes(q));
+list.sort((a,b)=>(a.no===q?0:1)-(b.no===q?0:1)||a.no.localeCompare(b.no,undefined,{numeric:true}));
+render(list)}
 document.getElementById('go').addEventListener('click',search);
+document.getElementById('q').addEventListener('input',search);
 document.getElementById('q').addEventListener('keydown',e=>{if(e.key==='Enter')search()});
 </script>
 </body>
